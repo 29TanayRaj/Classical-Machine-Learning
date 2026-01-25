@@ -5,11 +5,11 @@ class LogisticRegressionGD:
     Used for Binary Classification
     '''
 
-    def __init__(self, alpha=0.05, itr=1000, thershold=0.5, beta=None):
+    def __init__(self, alpha=0.05, itr=1000, threshold=0.5, beta=None):
         self.alpha = alpha 
         self.beta = beta 
         self.itr = itr
-        self.thershold = thershold
+        self.threshold = threshold
 
     def fit(self, X_train, y_train):
         X_train = np.array(X_train)
@@ -34,7 +34,7 @@ class LogisticRegressionGD:
     
     def predict(self, X_test):
         probs = self.predict_prob(X_test)
-        y_pred = np.array([1 if prob > self.thershold else 0 for prob in probs])
+        y_pred = np.array([1 if prob > self.threshold else 0 for prob in probs])
         return y_pred
 
     @staticmethod

@@ -9,4 +9,4 @@ class BaseRegression:
         raise NotImplementedError("fit method must be implemented in subclass")
 
     def predict(self, X_test):
-        pass   
+        raise NotImplementedError("predict method must be implemented in subclass")
