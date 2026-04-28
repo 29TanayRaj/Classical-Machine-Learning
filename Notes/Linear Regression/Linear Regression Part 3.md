@@ -1,250 +1,232 @@
-# Linear Regression — Parameter Estimation via Gradient Descent
+## Parameter Estimation via Gradient Descent
 
-## 1. Motivation
+### Motivation
 
-The closed-form OLS solution:
+The closed-form OLS solution $\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1}\mathbf{X}^\top \mathbf{y}$ requires inverting an $(p+1) \times (p+1)$ matrix. This becomes computationally expensive — $\mathcal{O}(p^3)$ — when the number of features $p$ is large. Gradient descent sidesteps the matrix inversion entirely by iteratively nudging $\boldsymbol{\beta}$ in the direction that reduces the loss the fastest.
 
-$$
-\hat{\beta} = (X^\top X)^{-1} X^\top y
-$$
+### The loss function
 
-- Requires inverting a $(p+1) \times (p+1)$ matrix  
-- This becomes computational costly: $O(p^3)$  
-- Expensive when $p$ is large.
-
-Idea is to use gradient descent to iteratively minimize the loss.
-
-
-## 2. The Loss Function
-
-Mean Squared Error (MSE):
+We use the Mean Squared Error (MSE) as our objective:
 
 $$
-L(\beta) = \frac{1}{n} \sum_{i=1}^n (y_i - \hat{y}_i)^2
+L(\boldsymbol{\beta}) = \frac{1}{n} \sum_{i=1}^{n}(y_i - \hat{y}_i)^2 = \frac{1}{n} \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|^2
 $$
 
-Matrix form:
+> Note: Some formulations use $\frac{1}{2n}$ to make the derivative cleaner. The factor does not affect the location of the minimum — only the effective learning rate.
+
+In matrix form:
 
 $$
-L(\beta) = \frac{1}{n} \|y - X\beta\|^2
-$$
-
-> Note : Some formulations use $\frac{1}{2n}$ to make the derivative calculation cleaner. This fractor does not affect the location of minima, has effect only on the learning rate for the process. 
-
-
-## 3. The Gradient
-
-Expanded loss:
-
-$$
-L(\beta) = \frac{1}{n} \left( y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta \right)
-$$
-
-Gradient:
-
-$$
-\nabla L(\beta) = \frac{-2}{n} X^\top (y - X\beta)
+L(\boldsymbol{\beta}) = \frac{1}{n}(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})^\top (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})
 $$
 
 
-### Intuition
+### The gradient
 
-- Residual:  
-  $$
-  \varepsilon = y - X\beta
-  $$
-
-- Gradient = projection of residuals onto feature space  
-- At optimum:  
-  $$
-  X^\top \varepsilon = 0
-  $$  
-  (normal equations)
-
-## 4. Gradient Descent
-
-Update rule:
+Expand $L$:
 
 $$
-\beta^{(t+1)} = \beta^{(t)} - \alpha \nabla L(\beta^{(t)})
+L(\boldsymbol{\beta}) = \frac{1}{n}\left(
+\mathbf{y}^\top \mathbf{y}
+- 2 \boldsymbol{\beta}^\top \mathbf{X}^\top \mathbf{y}
++ \boldsymbol{\beta}^\top \mathbf{X}^\top \mathbf{X} \boldsymbol{\beta}
+\right)
 $$
 
-Substitute gradient:
+Differentiate with respect to $\boldsymbol{\beta}$:
 
 $$
-\beta^{(t+1)} = \beta^{(t)} + \frac{2\alpha}{n} X^\top (y - X\beta^{(t)})
+\nabla_{\boldsymbol{\beta}} L
+= \frac{\partial L}{\partial \boldsymbol{\beta}}
+= \frac{1}{n}\left(
+-2 \mathbf{X}^\top \mathbf{y}
++ 2 \mathbf{X}^\top \mathbf{X} \boldsymbol{\beta}
+\right)
 $$
 
-Where:
-- $\alpha > 0$, is the learning rate. 
-
-
-## 4.1 Batch Gradient Descent (BGD)
-
-- The idea id to use all $n$ samples to compute the gradient of the loss function, then use this to update the parametrs using the loss function. 
-
-Advantages: 
-- Stable  
-
-Disadvantage: 
-- Expensive  
-- Slower in comparision to other methods. 
-- Not good for non-convex loss functions (not the case with squared error loss though).
-
-
-## 4.2 Stochastic Gradient Descent (SGD)
-
-Per sample $(x_i, y_i)$:
-
 $$
-\nabla L_i = -2 x_i (y_i - x_i^\top \beta)
+\boxed{
+\nabla_{\boldsymbol{\beta}} L
+= \frac{-2}{n}\,\mathbf{X}^\top(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})
+= \frac{-2}{n}\,\mathbf{X}^\top \hat{\boldsymbol{\varepsilon}}
+}
 $$
 
-Update:
+where $\hat{\boldsymbol{\varepsilon}} = \mathbf{y} - \mathbf{X}\boldsymbol{\beta}$ is the current residual vector.
+
+**Intuition:** The gradient is the residuals $\hat{\boldsymbol{\varepsilon}}$ projected back through $\mathbf{X}^\top$. When the residuals are large, the gradient is large and the update step is bigger. At the optimum, $\mathbf{X}^\top \hat{\boldsymbol{\varepsilon}} = \mathbf{0}$ ,exactly the normal equations.
+
+
+### Gradient descent variants
+
+#### 1. Batch gradient descent (BGD)
+
+Uses all $n$ observations to compute the gradient at each step.
 
 $$
-\beta^{(t+1)} = \beta^{(t)} + 2\alpha x_i (y_i - x_i^\top \beta)
+\boldsymbol{\beta}^{(t+1)} 
+= \boldsymbol{\beta}^{(t)} 
+- \alpha \, \nabla_{\boldsymbol{\beta}} L\!\left(\boldsymbol{\beta}^{(t)}\right)
 $$
 
-- Fast  
-- Noisy  
-
----
-
-## 4.3 Mini-batch Gradient Descent (MBGD)
-
-For batch $B$ of size $m$:
-
 $$
-\nabla L_B = \frac{-2}{m} X_B^\top (y_B - X_B \beta)
+\boldsymbol{\beta}^{(t+1)} 
+= \boldsymbol{\beta}^{(t)} 
++ \frac{2\alpha}{n} \, \mathbf{X}^\top 
+\left(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}^{(t)}\right)
 $$
 
-Update:
+where $\alpha > 0$ is the **learning rate**.
+
+- Stable, smooth convergence  
+- Expensive per iteration when $n$ is large — requires a full pass over the data  
+
+#### 2. Stochastic gradient descent (SGD)
+
+Uses a single randomly sampled observation $(\mathbf{x}_i, y_i)$ per update:
 
 $$
-\beta^{(t+1)} = \beta^{(t)} + \frac{2\alpha}{m} X_B^\top (y_B - X_B \beta)
+\nabla_{\boldsymbol{\beta}} L_i 
+= -2 \, \mathbf{x}_i \left(y_i - \mathbf{x}_i^\top \boldsymbol{\beta}\right)
 $$
 
----
-
-### Comparison
-
-| Method | Gradient | Cost | Noise |
-|--------|--------|------|------|
-| BGD | Exact | High | Low |
-| SGD | Noisy | Low | High |
-| MBGD | Approx | Medium | Medium |
-
-Typical batch sizes: $32, 64, 128, 256$
-
----
-
-## 5. Learning Rate ($\alpha$)
-
 $$
-\beta^{(t+1)} = \beta^{(t)} - \alpha \nabla L
+\boldsymbol{\beta}^{(t+1)} 
+= \boldsymbol{\beta}^{(t)} 
++ \alpha \, \mathbf{x}_i 
+\left(y_i - \mathbf{x}_i^\top \boldsymbol{\beta}^{(t)}\right)
 $$
 
-- Too large → divergence  
-- Too small → slow  
-
-Condition:
-
-$$
-\alpha < \frac{1}{\lambda_{\max}(X^\top X)/n}
-$$
-
-- A better approach will be to use a adaptive learning rate which is a function of iterations, can change (decrease as the iterations increase). 
-
-- Note for self: What if the adaptive learing rate is a function of error?? how will that affect the training process? 
+- Faster, cheaper updates  
+- Noisy updates but often converges quicker in practice  
 
 
-## 6. Convergence Criteria
+- Very cheap per update  
+- Noisy trajectory — never fully settles, oscillates near the minimum  
+- Can escape shallow local minima (useful in non-convex problems)
 
-Stop when:
+#### 3. Mini-batch gradient descent (MBGD)
 
- $$ \|\nabla L\|_2 \le \epsilon $$
- $$ |L(t) - L(t-1)| \le \epsilon $$
-- or when Maximum iterations reached  
-
-
-## 7. Feature Scaling
-
-Standardization:
+A compromise: sample a random mini-batch $\mathcal{B} \subset \{1, \dots, n\}$ of size $m$ at each step:
 
 $$
-\tilde{x}_j = \frac{x_j - \mathrm{mean}(x_j)}{\mathrm{std}(x_j)}
+\nabla_{\boldsymbol{\beta}} L_{\mathcal{B}} 
+= \frac{-2}{m}\,\mathbf{X}_{\mathcal{B}}^\top 
+\left(\mathbf{y}_{\mathcal{B}} - \mathbf{X}_{\mathcal{B}}\boldsymbol{\beta}\right)
 $$
 
-Why:
-
-- Prevent domination by large features, if one of the features is large in scale it can have a greater influence during the gradient update. 
-- Faster convergence on large scale data mostly beacuse of memory consumption during computation. 
-
-
-## 8. Full Algorithm (Mini-batch)
-
-1. Initialize $\beta = 0$  
-2. Standardize $X$  
-3. For $t = 1,2,\dots,T$:
-   - Shuffle data  
-   - For each batch $B$:
-     - Residual:
-       $$
-       r = y_B - X_B \beta
-       $$
-     - Gradient:
-       $$
-       \nabla L = \frac{-2}{m} X_B^\top r
-       $$
-     - Update:
-       $$
-       \beta \leftarrow \beta - \alpha \nabla L
-       $$
-4. Check convergence  
-5. Return $\beta$  
-
-
-## 9. Why Gradient Descent Converges
-
-Loss:
-
 $$
-L(\beta) = \frac{1}{2n}\|y - X\beta\|^2
+\boldsymbol{\beta}^{(t+1)} 
+= \boldsymbol{\beta}^{(t)} 
++ \frac{2\alpha}{m}\,\mathbf{X}_{\mathcal{B}}^\top 
+\left(\mathbf{y}_{\mathcal{B}} - \mathbf{X}_{\mathcal{B}}\boldsymbol{\beta}^{(t)}\right)
 $$
 
-- Hessian:
-  $$
-  \frac{1}{n} X^\top X
-  $$
-- Positive definite (if full rank)
+- Balances stability (BGD) and speed (SGD)  
+- Typical batch sizes: $m \in \{32, 64, 128, 256\}$  
+- The standard approach in practice  
 
-One global minimum, guaranteed convergence
 
----
 
-## 10. Summary
+|                | BGD            | SGD            | Mini-batch      |
+|----------------|----------------|----------------|-----------------|
+| Gradient estimate | Exact         | Very noisy     | Approximate     |
+| Cost per update  | $\mathcal{O}(np)$ | $\mathcal{O}(p)$ | $\mathcal{O}(mp)$ |
+| Convergence      | Smooth        | Noisy          | Moderate noise  |
+| Memory           | Full dataset  | Single sample  | Batch only      |
 
-Loss:
 
-$$
-L = \frac{1}{n}\|y - X\beta\|^2
-$$
+### 5. The learning rate $\alpha$
 
-Gradient:
+The learning rate is the most critical hyperparameter. It controls the size of each step along the loss surface.
 
 $$
-\nabla L = \frac{-2}{n} X^\top (y - X\beta)
+\boldsymbol{\beta}^{(t+1)} = \boldsymbol{\beta}^{(t)} - \alpha \, \nabla L
 $$
 
-Update:
+**Too large ($\alpha \uparrow$):** overshoots the minimum — loss diverges or oscillates.  
+
+**Too small ($\alpha \downarrow$):** converges but extremely slowly.  
+
+**Just right:** loss decreases steadily each epoch and levels off near the minimum.
+
+A theoretical upper bound for guaranteed convergence in BGD is:
 
 $$
-\beta \leftarrow \beta - \alpha \nabla L
+\alpha < \frac{1}{\lambda_{\max}(\mathbf{X}^\top \mathbf{X}) / n}
 $$
 
-Solution:
+where $\lambda_{\max}$ is the largest eigenvalue of $\mathbf{X}^\top \mathbf{X}$. In practice, $\alpha$ is found by search or a learning rate schedule.
+
+
+### Convergence criterion
+
+Training stops when one of these is satisfied:
 
 $$
-\hat{\beta} = (X^\top X)^{-1} X^\top y
+\|\nabla_{\boldsymbol{\beta}} L\|_2 < \epsilon \quad \text{(gradient is flat)}
 $$
+
+$$
+|L^{(t)} - L^{(t-1)}| < \epsilon \quad \text{(loss stopped improving)}
+$$
+
+$$
+t \geq T_{\max} \quad \text{(maximum iterations reached)}
+$$
+
+A common default is $\epsilon = 10^{-6}$.
+
+### Feature scaling
+
+Because gradient descent is sensitive to the scale of each feature, features must be **standardised** before fitting:
+
+$$
+\tilde{x}_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}
+$$
+
+where $\bar{x}_j$ and $s_j$ are the mean and standard deviation of feature $j$ computed on the training set only.
+
+Without scaling, features with large magnitudes dominate the gradient, creating a very elongated loss bowl. The contours of $L$ become elliptical and gradient descent zig-zags slowly toward the minimum instead of descending directly.
+
+### Full algorithm (mini-batch)
+
+$$
+\begin{aligned}
+&\textbf{Initialise:} \quad \boldsymbol{\beta} \leftarrow \mathbf{0} \; (\text{or small random values}) \\
+&\textbf{Standardise:} \quad \mathbf{X} \text{ using training mean and std} \\[6pt]
+
+&\textbf{For } t = 1, 2, \dots, T_{\max}: \\
+&\quad \text{Shuffle the training data} \\
+&\quad \text{For each mini-batch } \mathcal{B} \text{ of size } m: \\
+&\qquad \boldsymbol{\varepsilon}_{\mathcal{B}} \leftarrow \mathbf{y}_{\mathcal{B}} - \mathbf{X}_{\mathcal{B}} \boldsymbol{\beta} \\
+&\qquad \nabla L \leftarrow \frac{-2}{m}\mathbf{X}_{\mathcal{B}}^\top \boldsymbol{\varepsilon}_{\mathcal{B}} \\
+&\qquad \boldsymbol{\beta} \leftarrow \boldsymbol{\beta} - \alpha \nabla L \\[6pt]
+
+&\quad \text{Compute full training loss } L(\boldsymbol{\beta}) \\
+&\quad \text{If } \left|L^{(t)} - L^{(t-1)}\right| < \epsilon \text{, break} \\[6pt]
+
+&\textbf{Return } \boldsymbol{\beta}
+\end{aligned}
+$$
+
+### Why gradient descent converges for linear regression
+
+The MSE loss for linear regression is **strictly convex** in $\boldsymbol{\beta}$ (the Hessian $\frac{2}{n}\mathbf{X}^\top \mathbf{X}$ is positive definite when $\mathbf{X}$ has full column rank). This means:
+
+- There is exactly **one global minimum** — no local minima to get trapped in  
+- The loss surface is a **paraboloid** (bowl shape) in parameter space  
+- Gradient descent is **guaranteed to converge** to $\hat{\boldsymbol{\beta}}_{\text{OLS}}$ for a sufficiently small $\alpha$  
+
+This is why linear regression is a perfect pedagogical setting for gradient descent — the geometry is clean and the outcome is theoretically guaranteed.
+
+### Summary
+
+| Property               | Expression |
+|----------------------|------------|
+| Loss                 | $L = \frac{1}{n}\|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|^2$ |
+| Gradient             | $\nabla L = \frac{-2}{n}\mathbf{X}^\top(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$ |
+| Update rule          | $\boldsymbol{\beta} \leftarrow \boldsymbol{\beta} - \alpha \nabla L$ |
+| Convergence condition| $\|\nabla L\|_2 < \epsilon$ |
+| Loss surface         | Strictly convex — one global minimum |
+| Final solution       | $\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1}\mathbf{X}^\top \mathbf{y}$ |

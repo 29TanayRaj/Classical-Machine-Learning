@@ -247,8 +247,6 @@ $$
 = (\mathbf{I} - \mathbf{H})\mathbf{y}
 $$
 
-### 8. Fitted values and residuals
-
 Note that $\mathbf{H}$ and $(\mathbf{I} - \mathbf{H})$ are both symmetric and idempotent:
 
 $$
@@ -256,7 +254,7 @@ $$
 (\mathbf{I} - \mathbf{H})^2 = \mathbf{I} - \mathbf{H}
 $$
 
-### 9. Properties of the OLS estimator
+### Properties of the OLS estimator
 
 Under the Gauss–Markov assumptions 
 ($\mathbb{E}[\boldsymbol{\varepsilon}] = \mathbf{0}$, 
@@ -294,7 +292,7 @@ $$
 = \frac{\mathrm{RSS}}{n - p - 1}
 $$
 
-### 10. Summary of key results
+### Key results
 
 | Quantity | Expression |
 |----------|-----------|
