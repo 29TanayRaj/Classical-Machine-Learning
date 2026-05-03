@@ -1,39 +1,39 @@
 ## Introduction to Logistic Regression 
 
-Logistic regression is a supervised learning task in which we predict a binary target variable. This is a classification task.
+Logistic regression is a supervised learning algorithem in which we predict a binary target variable. 
 
 $$ \sigma(z)= \frac{1}{1+\exp(-z)}$$
 
 $$z = \beta_{0} + \beta_{1}x_{1}+\dots+\beta_{n}x_{n}$$
 
-> The idea is to extend the linear regression into a probabilistic model, which squeeze the output between 0 and 1.
+> The idea is to extend linear regression into a probabilistic model, that squeezes the output between 0 and 1.
 
-Logistic regression is a part of the generalized linear regression models. 
+Logistic regression is a part of the generalized linear models family. 
 
 ### Assumptions for logistic regression
-- Logistic regression works on the assumption that the data points are linearly seperable. 
+- Logistic regression works on the assumption that the data points are linearly separable. 
 
-- All the observartions are independent os earch other. 
+- All the observations are independent of each other. 
 
-- No muticollinarlity between the predictors.
+- No multicollinearity between the predictors.
 
-> Note: The core logistic regression algorithem can only do binary classification, but this algorithem can be extendened for mutiple classifications too via the use of one vs all, that will be discussed later  
+> Note: The core logistic regression algorithm can only do binary classification, but this algorithm can be extended for multiple classifications too via the use of one vs all, that will be discussed later  
 
 ### Motivation behind the whole problem
 
-Logistic regression work by finding the best fit line which can divide the points into two parts, by the nature of algorithem this is only possible when the data points are linearly sepearble. 
+Logistic regression works by finding the best-fit line which can divide the points into two parts, by the nature of algorithm this is only possible when the data points are linearly separable. 
 
-we will now work on understanding how this algorithem works and the idea behind this. For this we start with the peceptron model.
+We will now work on understanding how this algorithm works and the idea behind this. For this we start with the perceptron model.
 
 ## Perceptron Model
 
 This model works fitting a line, which divides the space into a positive region and a negative region which helps us to classify the points. 
 
-Lets say we have $n$ predictors $x_{1},x_{2},\dots x_{n}$, the we have a line 
+Let's say we have $n$ predictors $x_{1},x_{2},\dots x_{n}$, then we have a line 
 
 $$\sum_{i=0}^{n} w_{i}x_{i} = 0$$
 
-Which divides the plain into two regions which helps us to classify our datapoints, we use a step function to classify the data points
+Which divides the plane into two regions which helps us to classify our datapoints, we use a step function to classify the data points
 
 $$\hat{y} = f(z) =
 \begin{cases}
@@ -46,9 +46,9 @@ $$\text{where, } z = \sum_{i=0}^{n} w_{i}x^{'}_{i}$$
 
 #### How do we find this line?
 
-The idea is to use missclassified points to push the points beyond the points. 
+The idea is to use misclassified points to push the decision line on the right side of the points. 
 
-lets say we have a point $x^{1} = (x^{1}_{0},x^{1}_{1} \dots x^{1}_{n})$, which is supposed to be in the negative part of the plane (y=0), but is in positive part of the plane (y=1).
+lets say we have a point $x^{1} = (x^{1}_{0},x^{1}_{1}, \dots ,x^{1}_{n})$, which is supposed to be in the negative part of the plane (y=0), but is in positive part of the plane (y=1).
 
 we would update the weights in such a way that the point is pushed toward the correct side of the decision boundary.
 
@@ -71,7 +71,7 @@ $$
 w_{\text{new}} = w_{\text{old}} + \eta(y_{i}-\hat{y}_{i}) x_i
 $$
 
-Which is gives the perceptron learning algorithem.
+This gives the perceptron learning algorithm.
 
 ```
 Algorithm: Perceptron Training
@@ -132,8 +132,5 @@ for _ in range(epochs):
     w = w + lr * (y[i] - y_pred) * X[i]
 ```
 
-> Note: Though this gives a line that satifies our conditions for classification but there is no way of knowing if this is the best fit line.
-
-
-
+> Note: Though this gives a line that satisfies our conditions for classification but no guarantee that it is the best-fit line.
 
